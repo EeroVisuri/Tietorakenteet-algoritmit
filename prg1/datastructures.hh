@@ -9,6 +9,9 @@
 #include <utility>
 #include <limits>
 #include <functional>
+#include <unordered_map>
+#include <map>
+#include <iostream>
 
 // Types for IDs
 using PlaceID = long int;
@@ -76,6 +79,11 @@ Distance const NO_DISTANCE = NO_VALUE;
 
 
 
+
+
+
+
+
 // This is the class you are supposed to implement
 
 class Datastructures
@@ -84,20 +92,20 @@ public:
     Datastructures();
     ~Datastructures();
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(1)
+    // Short rationale for estimate: Calling .size() on a map is a constant time operation.
     int place_count();
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(n)
+    // Short rationale for estimate: Linear on size, because it goes through all the items in maps.
     void clear_all();
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(n)
+    // Short rationale for estimate: Linear, because function has a for-loop, which executes n times.
     std::vector<PlaceID> all_places();
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(log(n))
+    // Short rationale for estimate: Goes through placeId_names_map, then inserts into 3 other maps. Will optimize.
     bool add_place(PlaceID id, Name const& name, PlaceType type, Coord xy);
 
     // Estimate of performance:
@@ -184,6 +192,34 @@ public:
 
 private:
     // Add stuff needed for your class implementation here
+
+    // A struct to store info about our places. Maybe we don't need this tho.
+    struct Place {
+        PlaceID id;
+        AreaID areaId;
+        Name name;
+        WayID wayId;
+        Coord coordinates;
+        PlaceType type;
+        CoordHash coordinateHashed;
+    };
+
+    //std::unordered_map <PlaceID, Place> placeId_Places_map; maybe not this
+
+    static bool coord_comp(std::pair<PlaceID, Coord> coordA, std::pair<PlaceID, Coord> coordB);
+
+    std::unordered_map <AreaID, AreaID> subarea_map = {};
+
+    std::unordered_map <PlaceID, Name> placeID_names_map = {};
+
+    std::unordered_map <PlaceID, PlaceType> placeID_type_map = {};
+
+    std::unordered_map <PlaceID, Coord> placeID_coord_map = {};
+
+    std::unordered_map <AreaID, Name> areaID_name_map = {};
+
+    std::unordered_map <AreaID, std::vector<Coord>> areaID_coord_map = {};
+
 
 };
 
