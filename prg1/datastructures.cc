@@ -158,21 +158,23 @@ void Datastructures::creation_finished()
 std::vector<PlaceID> Datastructures::places_alphabetically()
 {
 
-    //this whole thing is awful with 2 for loops, gotta optimize somehow
-    std::vector<PlaceID>IDs_alphabetically;
-    //this map is going to be alphabetically sorted due to std::less<Name>
-    std::map<Name, PlaceID, std::less<Name>> alphabetic_order_map;
 
-    //iterate the unordered map, insert stuff into the regular map
-    std::unordered_map<PlaceID, Name>::iterator iter;
-    for (iter = placeID_names_map.begin(); iter != placeID_names_map.end(); iter++) {
-        alphabetic_order_map.insert(std::make_pair(iter->second, iter->first));
+    std::vector<PlaceID>IDs_alphabetically;
+
+    std::vector<std::pair<PlaceID, Name>>IDs_to_be_sorted;
+
+    std::copy(placeID_names_map.begin(), placeID_names_map.end(),
+              std::back_inserter(IDs_to_be_sorted));
+
+    std::sort(IDs_to_be_sorted.begin(), IDs_to_be_sorted.end(), name_comp);
+
+
+    for (std::vector<std::pair<PlaceID, Name>>::iterator it = IDs_to_be_sorted.begin();
+         it != IDs_to_be_sorted.end(); ++it ) {
+        IDs_alphabetically.push_back(it->first);
+
     }
-    //put the stuff into the vector we're gonna return
-    //todo: check if we can just put stuff into the vector in alphabetic order
-    for (const auto& elem : alphabetic_order_map) {
-        IDs_alphabetically.push_back(elem.second);
-    }
+
 
     return IDs_alphabetically;
 }
@@ -390,5 +392,14 @@ bool Datastructures::coord_comp(std::pair<PlaceID, Coord> coordA, std::pair<Plac
             return false;
         }
     }
+}
+
+/*
+ * A comparison function to sort out alphabetic order.
+ */
+
+bool Datastructures::name_comp(std::pair<PlaceID, Name> nameA, std::pair<PlaceID, Name> nameB)
+{
+    return nameA.second < nameB.second;
 }
 

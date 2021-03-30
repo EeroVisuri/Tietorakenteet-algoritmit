@@ -92,7 +92,7 @@ public:
     Datastructures();
     ~Datastructures();
 
-    // Estimate of performance: O(1)
+    // Estimate of performance: O(n)
     // Short rationale for estimate: Calling .size() on a map is a constant time operation.
     int place_count();
 
@@ -119,12 +119,12 @@ public:
 
     // We recommend you implement the operations below only after implementing the ones above
 
-    // Estimate of performance: O(log(n))
-    // Short rationale for estimate: Has a for-loop, and inserting which is logarithmic worst case
+    // Estimate of performance: O(n(log(n)))
+    // Short rationale for estimate: Sorting average case is n log n, so that's what we get.
     std::vector<PlaceID> places_alphabetically();
 
     // Estimate of performance: O(n(log(n)))
-    // Short rationale for estimate: My sorting isn't efficient and it has a for-loop for n log n.
+    // Short rationale for estimate: Sorting average case is n log n.
     std::vector<PlaceID> places_coord_order();
 
     // Estimate of performance: O(n)
@@ -204,13 +204,17 @@ private:
         Coord coordinates;
         PlaceType type;
         CoordHash coordinateHashed;
-    };
+    };//yeah ended up not using this at all maybe it would have been neater but
 
     //std::unordered_map <PlaceID, Place> placeId_Places_map; maybe not this
 
     //a comparison function for sorting by coordinate distance from origo
 
     static bool coord_comp(std::pair<PlaceID, Coord> coordA, std::pair<PlaceID, Coord> coordB);
+
+    //a comparison function for sorting alphabetically
+
+    static bool name_comp(std::pair<PlaceID, Name> nameA, std::pair<PlaceID, Name> nameB);
 
     //ton of maps to save our data
 
