@@ -204,7 +204,7 @@ std::vector<PlaceID> Datastructures::find_places_name(Name const& name)
 
     //vector for the placenames we wanna return
     std::vector<PlaceID> placenames;
-    //for-loop is slow maybe optimize this?
+
     //iterate through placeID_names map, push placenames into the vector if they match const& name
     for (std::unordered_map<PlaceID, Name>::iterator iter = placeID_names_map.begin();
          iter != placeID_names_map.end(); ++iter) {
@@ -220,7 +220,7 @@ std::vector<PlaceID> Datastructures::find_places_type(PlaceType type)
 {
     //vector for placeID's
     std::vector<PlaceID> placeIDs;
-    //for-loop again maybe look into it when optimizing?
+
     //iterate through the map, push placeID's into the vector when they match PlaceType type
     for (std::unordered_map<PlaceID, PlaceType>::iterator iter
          = placeID_type_map.begin(); iter != placeID_type_map.end(); ++iter) {
@@ -296,7 +296,7 @@ std::vector<AreaID> Datastructures::subarea_in_areas(AreaID id)
     //again first check if we can find given area
     auto find_subarea = areaID_name_map.find(id);
     //if not, return NO_AREA
-    if (find_subarea != areaID_name_map.end()) {
+    if (find_subarea == areaID_name_map.end()) {
         return {NO_AREA};
     }
 
