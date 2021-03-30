@@ -179,15 +179,18 @@ std::vector<PlaceID> Datastructures::places_alphabetically()
 
 std::vector<PlaceID> Datastructures::places_coord_order()
 {
+
+    //ugly solution but best I can do right now
     std::vector<std::pair<PlaceID, Coord>> closest_to_origo;
 
     for (auto& iter : placeID_coord_map) {
         closest_to_origo.push_back(std::make_pair(iter.first, iter.second));
     }
 
+    //sort the  vector using the coord_comp function I made lower down
     std::sort (closest_to_origo.begin(), closest_to_origo.end(), coord_comp);
 
-
+    //
     std::vector<PlaceID> coord_ordered_ids;
 
     for (auto& iter2 : closest_to_origo) {
@@ -270,14 +273,45 @@ std::vector<AreaID> Datastructures::all_areas()
 
 bool Datastructures::add_subarea_to_area(AreaID id, AreaID parentid)
 {
-    // Replace this comment with your implementation
-    return false;
+    //first we check if we can find the given ID's
+    auto find_area = areaID_name_map.find(id);
+    auto find_area_parent = areaID_name_map.find(parentid);
+    //if we can't, do nothing, return false
+    if (find_area == areaID_name_map.end() || find_area_parent == areaID_name_map.end()) {
+        return false;
+    }
+    //then we check if the subarea is already part of an area
+    auto check_subarea = areaID_subarea_map.find(id);
+    //if yes, do nothing, return false
+    if (check_subarea != areaID_subarea_map.end()) {
+        return false;
+    }
+    //otherwise just put stuff in the subarea map
+    areaID_subarea_map.insert({id, parentid});
+    return true;
 }
 
 std::vector<AreaID> Datastructures::subarea_in_areas(AreaID id)
 {
-    // Replace this comment with your implementation
-    return {NO_AREA};
+    //again first check if we can find given area
+    auto find_subarea = areaID_name_map.find(id);
+    //if not, return NO_AREA
+    if (find_subarea != areaID_name_map.end()) {
+        return {NO_AREA};
+    }
+
+    //if yes, we make a vector for our subarea ID's
+    std::vector<AreaID>areaIDs;
+
+    for (std::unordered_map<AreaID, AreaID>::iterator iter = areaID_subarea_map
+         .begin(); iter != areaID_subarea_map.end(); ++iter) {
+        auto find_area = areaID_subarea_map.find(id);
+        if (find_area != areaID_subarea_map.end()) {
+            areaIDs.push_back(find_area->second);
+            id = find_area->second;
+        }
+    }
+    return areaIDs;
 }
 
 std::vector<PlaceID> Datastructures::places_closest_to(Coord xy, PlaceType type)
@@ -288,8 +322,19 @@ std::vector<PlaceID> Datastructures::places_closest_to(Coord xy, PlaceType type)
 
 bool Datastructures::remove_place(PlaceID id)
 {
-    // Replace this comment with your implementation
-    return false;
+
+    //just erases everything from all the maps
+
+    areaID_name_map.erase(id);
+    placeID_names_map.erase(id);
+    placeID_type_map.erase(id);
+    placeID_coord_map.erase(id);
+    areaID_name_map.erase(id);
+    areaID_subarea_map.erase(id);
+    areaID_coord_map.erase(id);
+
+    return true;
+    
 }
 
 std::vector<AreaID> Datastructures::all_subareas_in_area(AreaID id)
