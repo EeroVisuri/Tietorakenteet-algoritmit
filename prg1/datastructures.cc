@@ -163,12 +163,13 @@ std::vector<PlaceID> Datastructures::places_alphabetically()
 
     std::vector<std::pair<PlaceID, Name>>IDs_to_be_sorted;
 
+    //copying the stuff we need from the map where it's located
     std::copy(placeID_names_map.begin(), placeID_names_map.end(),
               std::back_inserter(IDs_to_be_sorted));
-
+    //sorting the vector using name_comp, a function I wrote below
     std::sort(IDs_to_be_sorted.begin(), IDs_to_be_sorted.end(), name_comp);
 
-
+    //pushing only the ID's into the IDs_alphabetically-vector.
     for (std::vector<std::pair<PlaceID, Name>>::iterator it = IDs_to_be_sorted.begin();
          it != IDs_to_be_sorted.end(); ++it ) {
         IDs_alphabetically.push_back(it->first);
