@@ -9,6 +9,10 @@
 #include <utility>
 #include <limits>
 #include <functional>
+#include <unordered_map>
+#include <map>
+#include <iostream>
+
 
 // Types for IDs
 using PlaceID = long long int;
@@ -84,80 +88,84 @@ public:
     Datastructures();
     ~Datastructures();
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(n)
+    // Short rationale for estimate: Calling .size() on a map is a constant time operation.
     int place_count();
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+
+    // Estimate of performance: O(n)
+    // Short rationale for estimate: Linear on size, because it goes through all the items in maps.
     void clear_all();
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+
+    // Estimate of performance: O(n)
+    // Short rationale for estimate: Linear, because function has a for-loop, which executes n times.
     std::vector<PlaceID> all_places();
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(log(n))
+    // Short rationale for estimate: Goes through placeId_names_map, then inserts into 3 other maps.
+    // Will optimize if I have time
     bool add_place(PlaceID id, Name const& name, PlaceType type, Coord xy);
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(n)
+    // Short rationale for estimate: Has an iterator going through items
     std::pair<Name, PlaceType> get_place_name_type(PlaceID id);
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(log(n))
+    // Short rationale for estimate: Uses map's "find", which is logarithmic
     Coord get_place_coord(PlaceID id);
 
     // We recommend you implement the operations below only after implementing the ones above
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(n(log(n)))
+    // Short rationale for estimate: Sorting average case is n log n, so that's what we get.
     std::vector<PlaceID> places_alphabetically();
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(n(log(n)))
+    // Short rationale for estimate: Sorting average case is n log n.
     std::vector<PlaceID> places_coord_order();
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(n)
+    // Short rationale for estimate: For-loop for n, push_back is constant time
     std::vector<PlaceID> find_places_name(Name const& name);
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(n)
+    // Short rationale for estimate: For-loop for n, push_back is constant time
     std::vector<PlaceID> find_places_type(PlaceType type);
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(log(n))
+    // Short rationale for estimate: Find is logarithmic time taking maneuver.
     bool change_place_name(PlaceID id, Name const& newname);
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(log(n))
+    // Short rationale for estimate: Find takes logarithmic time again
     bool change_place_coord(PlaceID id, Coord newcoord);
 
     // We recommend you implement the operations below only after implementing the ones above
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(log(n))
+    // Short rationale for estimate: Find takes logarithmic time, insertions are constant on average
+    // worst case is linear in container size
     bool add_area(AreaID id, Name const& name, std::vector<Coord> coords);
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(log(n))
+    // Short rationale for estimate: Again find from map takes logarithmic time.
     Name get_area_name(AreaID id);
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(log(n))
+    // Short rationale for estimate: Again find from map takes logarithmic time.
     std::vector<Coord> get_area_coords(AreaID id);
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(n)
+    // Short rationale for estimate: For-loop iterates through n elements, push_back is constant time
     std::vector<AreaID> all_areas();
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(log(n))
+    // Short rationale for estimate: Multiple finds takes log n time, inserts are constant
     bool add_subarea_to_area(AreaID id, AreaID parentid);
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(n(log(n)))
+    // Short rationale for estimate: Log-time find in a for loop takes n log n time. This one's ugly.
     std::vector<AreaID> subarea_in_areas(AreaID id);
 
     // Non-compulsory operations
@@ -232,6 +240,59 @@ public:
 
 private:
     // Add stuff needed for your class implementation here
+
+    // A struct to store info about our places. Maybe we don't need this tho.
+    struct Place {
+        PlaceID id;
+        AreaID areaId;
+        Name name;
+        WayID wayId;
+        Coord coordinates;
+        PlaceType type;
+        CoordHash coordinateHashed;
+
+    };
+    //yeah ended up not using this at all maybe it would have been neater but
+
+
+    //struct for edges in the graph
+    struct Way {
+        WayID id;
+        Coord source;
+        Coord destination;
+        int length;
+    };
+
+
+
+
+    //std::unordered_map <PlaceID, Place> placeId_Places_map; maybe not this
+
+    //a comparison function for sorting by coordinate distance from origo
+
+    static bool coord_comp(std::pair<PlaceID, Coord> coordA, std::pair<PlaceID, Coord> coordB);
+
+    //a comparison function for sorting alphabetically
+
+    static bool name_comp(std::pair<PlaceID, Name> nameA, std::pair<PlaceID, Name> nameB);
+
+    //ton of maps to save our data
+
+    std::unordered_map <PlaceID, Name> placeID_names_map = {};
+
+    std::unordered_map <PlaceID, PlaceType> placeID_type_map = {};
+
+    std::unordered_map <PlaceID, Coord> placeID_coord_map = {};
+
+    std::unordered_map <AreaID, Name> areaID_name_map = {};
+
+    std::unordered_map <AreaID, AreaID> areaID_subarea_map = {};
+
+    std::unordered_map <AreaID, std::vector<Coord>> areaID_coord_map = {};
+
+    //FIX THIS
+    std::vector <Way> ways_vector = {};
+
 
 };
 
