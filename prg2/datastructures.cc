@@ -404,8 +404,7 @@ bool Datastructures::add_way(WayID id, std::vector<Coord> coords)
 
     Way new_way;
     new_way.id = id;
-    new_way.source = coords[0];
-    new_way.destination = coords[1];
+    new_way.way_coords = coords;
     ways_vector.push_back(new_way);
 
     return true;
