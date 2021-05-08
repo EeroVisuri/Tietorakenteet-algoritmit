@@ -412,7 +412,18 @@ bool Datastructures::add_way(WayID id, std::vector<Coord> coords)
 
 std::vector<std::pair<WayID, Coord>> Datastructures::ways_from(Coord xy)
 {
-    // Replace this comment with your implementation
+
+    std::vector<std::pair<WayID, Coord>> ways_from_vect;
+
+    for (unsigned long i = 0; i < ways_vector.size(); ++i) {
+        for (unsigned long j = 0; j < ways_vector.at(i).way_coords.size(); ++j) {
+            if (ways_vector.at(i).way_coords.at(j) == xy) {
+                //do stuff
+            }
+        }
+    }
+
+
     return {{NO_WAY, NO_COORD}};
 }
 
