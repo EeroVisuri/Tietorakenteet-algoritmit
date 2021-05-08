@@ -258,9 +258,7 @@ private:
     //struct for edges in the graph
     struct Way {
         WayID id;
-        Coord source;
-        Coord destination;
-        int length;
+        std::vector<Coord>way_coords;
     };
 
 
@@ -290,7 +288,7 @@ private:
 
     std::unordered_map <AreaID, std::vector<Coord>> areaID_coord_map = {};
 
-    //FIX THIS
+    
     std::vector <Way> ways_vector = {};
 
 

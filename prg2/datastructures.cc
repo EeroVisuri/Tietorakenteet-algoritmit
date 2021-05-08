@@ -418,7 +418,19 @@ std::vector<std::pair<WayID, Coord>> Datastructures::ways_from(Coord xy)
 
 std::vector<Coord> Datastructures::get_way_coords(WayID id)
 {
-    // Replace this comment with your implementation
+    // Finds a way with parameter WayID and returns it's coords.
+    // IF they can't be found, returns NO_COORD.
+
+    std::vector<Coord> get_way_coords_vect;
+
+    //if we find a way with the given ID, copy it's way_coords to our return vector
+    for (unsigned long i = 0; i < ways_vector.size(); ++i) {
+        if (ways_vector.at(i).id == id) {
+            get_way_coords_vect = ways_vector.at(i).way_coords;
+            return get_way_coords_vect;
+        }
+    }
+    //otherwise we just return the NO_COORD.
     return {NO_COORD};
 }
 
