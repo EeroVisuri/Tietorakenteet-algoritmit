@@ -404,7 +404,7 @@ bool Datastructures::add_way(WayID id, std::vector<Coord> coords)
 
     Way new_way;
     new_way.id = id;
-    new_way.way_coords = coords;
+    new_way.way_coords_vect = coords;
     ways_vector.push_back(new_way);
 
     return true;
@@ -416,9 +416,10 @@ std::vector<std::pair<WayID, Coord>> Datastructures::ways_from(Coord xy)
     std::vector<std::pair<WayID, Coord>> ways_from_vect;
 
     for (unsigned long i = 0; i < ways_vector.size(); ++i) {
-        for (unsigned long j = 0; j < ways_vector.at(i).way_coords.size(); ++j) {
-            if (ways_vector.at(i).way_coords.at(j) == xy) {
-                //do stuff
+        for (unsigned long j = 0; j < ways_vector.at(i).
+             way_coords_vect.size(); ++j) {
+            if (ways_vector.at(i).way_coords_vect.at(j) == xy) {
+                //ways_from_vect.push_back(std::make_pair(ways_vector.at(i).id), ways_vector.at(i).way_coords.at(j));
             }
         }
     }
@@ -437,7 +438,7 @@ std::vector<Coord> Datastructures::get_way_coords(WayID id)
     //if we find a way with the given ID, copy it's way_coords to our return vector
     for (unsigned long i = 0; i < ways_vector.size(); ++i) {
         if (ways_vector.at(i).id == id) {
-            get_way_coords_vect = ways_vector.at(i).way_coords;
+            get_way_coords_vect = ways_vector.at(i).way_coords_vect;
             return get_way_coords_vect;
         }
     }
@@ -485,6 +486,25 @@ Distance Datastructures::trim_ways()
 {
     // Replace this comment with your implementation
     return NO_DISTANCE;
+}
+
+int Datastructures::way_length(Coord fromxy, Coord toxy)
+{
+
+    //calculating the length of a route from coord to coord
+    float x1 = static_cast<float>(fromxy.x);
+    float x2 = static_cast<float>(toxy.x);
+    float y1 = static_cast<float>(fromxy.y);
+    float y2 = static_cast<float>(toxy.y);
+
+
+    float xpow = pow(x1-x2, 2);
+    float ypow = pow(y1-y2, 2);
+    float toberounded = sqrt(xpow+ypow);
+    int result = floorf(toberounded);
+
+    return result;
+
 }
 
 /*

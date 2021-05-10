@@ -241,6 +241,8 @@ public:
 private:
     // Add stuff needed for your class implementation here
 
+
+
     // A struct to store info about our places. Maybe we don't need this tho.
     struct Place {
         PlaceID id;
@@ -258,10 +260,38 @@ private:
     //struct for edges in the graph
     struct Way {
         WayID id;
-        std::vector<Coord>way_coords;
+        std::vector<Coord>way_coords_vect;
+        int waylength;
+        Coord start;
+        Coord end_coord;
+
+        Way() {
+
+        }
+
+
+        Way(WayID id1, std::vector<Coord>way_coords_vect1) {
+            id = id1;
+            waylength = 0;
+            way_coords_vect = way_coords_vect1;
+            if (way_coords_vect.size() == 1) {
+                start = way_coords_vect[0];
+                end_coord = way_coords_vect[0];
+                waylength = 0;
+
+            }else {
+                for (unsigned long i = 0; i < way_coords_vect.size()-1; ++i) {
+                    waylength = waylength+way_length(way_coords_vect[i], way_coords_vect[i+1]);
+                }
+            }
+            start = way_coords_vect[0];
+            end_coord = way_coords_vect.back();
+        }
     };
 
 
+
+    static int way_length(Coord fromxy, Coord toxy);
 
 
     //std::unordered_map <PlaceID, Place> placeId_Places_map; maybe not this
