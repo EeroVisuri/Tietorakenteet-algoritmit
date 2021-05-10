@@ -261,7 +261,7 @@ private:
     struct Way {
         WayID id;
         std::vector<Coord>way_coords_vect;
-        int waylength;
+        Distance waylength;
         Coord start;
         Coord end_coord;
 
