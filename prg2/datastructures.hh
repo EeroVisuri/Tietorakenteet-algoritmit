@@ -269,7 +269,7 @@ private:
 
         }
 
-
+        //parametized constructor, calculates its own waylength and start and end coords are saved.
         Way(WayID id1, std::vector<Coord>way_coords_vect1) {
             id = id1;
             waylength = 0;

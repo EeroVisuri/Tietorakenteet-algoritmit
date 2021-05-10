@@ -415,17 +415,21 @@ std::vector<std::pair<WayID, Coord>> Datastructures::ways_from(Coord xy)
 
     std::vector<std::pair<WayID, Coord>> ways_from_vect;
 
+
+    //look through ways_vector to find given xy start coords
     for (unsigned long i = 0; i < ways_vector.size(); ++i) {
-        for (unsigned long j = 0; j < ways_vector.at(i).
-             way_coords_vect.size(); ++j) {
-            if (ways_vector.at(i).way_coords_vect.at(j) == xy) {
-                //ways_from_vect.push_back(std::make_pair(ways_vector.at(i).id), ways_vector.at(i).way_coords.at(j));
-            }
+        if (ways_vector.at(i).start == xy) {
+            //if found, make pairs of ID's and coords
+            ways_from_vect.push_back(std::make_pair(ways_vector.at(i).id, ways_vector.at(i).end_coord));
         }
     }
 
-
-    return {{NO_WAY, NO_COORD}};
+    //if we haven't found anything, return NO_WAY, NO_COORD
+    if (ways_from_vect.size() == 0) {
+        return {{NO_WAY, NO_COORD}};
+    }
+    //otherwise we return the results.
+    return ways_from_vect;
 }
 
 std::vector<Coord> Datastructures::get_way_coords(WayID id)
