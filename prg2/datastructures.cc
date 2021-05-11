@@ -392,7 +392,7 @@ std::vector<WayID> Datastructures::all_ways()
 
 bool Datastructures::add_way(WayID id, std::vector<Coord> coords)
 {   
-    // Implementation assumes coords-vector only contains two coordinates.
+    // Checks if ID exist in ways_vector, if not, creates a new way there.
 
 
 
@@ -402,9 +402,9 @@ bool Datastructures::add_way(WayID id, std::vector<Coord> coords)
         }
     }
 
-    Way new_way;
-    new_way.id = id;
-    new_way.way_coords_vect = coords;
+    Way new_way(id, coords);
+    //new_way.id = id;
+    //new_way.way_coords_vect = coords;
     ways_vector.push_back(new_way);
 
     return true;
@@ -470,7 +470,14 @@ void Datastructures::clear_ways()
 std::vector<std::tuple<Coord, WayID, Distance> > Datastructures::route_any(Coord fromxy, Coord toxy)
 {
     // Replace this comment with your implementation
+
+    //check if either start or end coordinates aren't a crossroad
+    //if so we return this {{NO_COORD, NO_WAY, NO_DISTANCE}}
+
     return {{NO_COORD, NO_WAY, NO_DISTANCE}};
+
+
+
 }
 
 bool Datastructures::remove_way(WayID id)
@@ -501,6 +508,31 @@ Distance Datastructures::trim_ways()
 {
     // Replace this comment with your implementation
     return NO_DISTANCE;
+}
+
+std::vector<std::tuple<Coord, WayID, Distance>> Datastructures::route(Coord fromxy, Coord toxy)
+{
+    std::vector<Distance> distances;
+    std::vector<WayID> visited;
+    std::vector<Way> to_be_visited = ways_vector;
+
+    Way start;
+    Way end;
+
+    for (unsigned long i = 0; i < ways_vector.size(); ++i) {
+        if (ways_vector.at(i).start == fromxy) {
+            start = ways_vector.at(i);
+        }
+        if (ways_vector.at(i).end_coord == toxy) {
+            end = ways_vector.at(i);
+        }
+    }
+
+    while (to_be_visited.size() != 0) {
+
+    }
+
+
 }
 
 int Datastructures::way_length(Coord fromxy, Coord toxy)

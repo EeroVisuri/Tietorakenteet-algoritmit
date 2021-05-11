@@ -192,24 +192,24 @@ public:
 
     // Phase 2 operations
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(n)
+    // Short rationale for estimate: For-loop where we insert n-times is O(n).
     std::vector<WayID> all_ways();
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(n)
+    // Short rationale for estimate: Checks through ways_vector for ID, then adds it if missing.
     bool add_way(WayID id, std::vector<Coord> coords);
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(log^n)
+    // Short rationale for estimate: Goes through ways_vector with for loop, has an inner for-loop.
     std::vector<std::pair<WayID, Coord>> ways_from(Coord xy);
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(n)
+    // Short rationale for estimate: Again a for-loop going through ways_vector.
     std::vector<Coord> get_way_coords(WayID id);
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(n)
+    // Short rationale for estimate: Clearing a vector depends on it's size.
     void clear_ways();
 
     // Estimate of performance:
@@ -288,6 +288,18 @@ private:
             end_coord = way_coords_vect.back();
         }
     };
+    //
+    //
+
+    struct Way_node {
+        int nodeid;
+        std::vector<Coord> nodeneighbours;
+        Coord position;
+
+    };
+
+
+    std::vector<std::tuple<Coord, WayID, Distance>> route(Coord fromxy, Coord toxy);
 
 
 
@@ -321,6 +333,9 @@ private:
     
     std::vector <Way> ways_vector = {};
 
+    std::vector <Coord> vertexes = {};
+
+    std::vector <Way_node> nodes_vector = {};
 
 };
 
