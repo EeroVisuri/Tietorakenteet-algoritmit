@@ -257,6 +257,12 @@ private:
     //yeah ended up not using this at all maybe it would have been neater but
 
 
+    struct Way_node {
+        Coord position;
+        std::vector<Way_node*> nodeneighbours;
+    };
+
+
     //struct for edges in the graph
     struct Way {
         WayID id;
@@ -264,6 +270,9 @@ private:
         Distance waylength;
         Coord start;
         Coord end_coord;
+        Way_node *startnode;
+        Way_node *endnode;
+
 
         Way() {
 
@@ -291,10 +300,7 @@ private:
     //
     //
 
-    struct Way_node {
-        Coord position;
-        std::vector<Way_node*> nodeneighbours;
-    };
+
 
     int get_node_index (Coord pos);
 

@@ -400,11 +400,12 @@ bool Datastructures::add_way(WayID id, std::vector<Coord> coords)
     }
 
     Way new_way(id, coords);
-    ways_vector.push_back(new_way);
+
     if (make_node(coords[0], coords.back())) {
-
+        new_way.startnode = &nodes_vector.back();
+        new_way.endnode = new_way.startnode->nodeneighbours.back();
     }
-
+    ways_vector.push_back(new_way);
     return true;
 }
 
