@@ -393,9 +393,6 @@ std::vector<WayID> Datastructures::all_ways()
 bool Datastructures::add_way(WayID id, std::vector<Coord> coords)
 {   
     // Checks if ID exist in ways_vector, if not, creates a new way there.
-
-
-
     for (unsigned long i = 0; i < ways_vector.size(); ++i) {
         if (ways_vector.at(i).id == id) {
             return false;
@@ -403,9 +400,10 @@ bool Datastructures::add_way(WayID id, std::vector<Coord> coords)
     }
 
     Way new_way(id, coords);
-    //new_way.id = id;
-    //new_way.way_coords_vect = coords;
     ways_vector.push_back(new_way);
+    if (make_node(coords[0], coords.back())) {
+
+    }
 
     return true;
 }
@@ -508,6 +506,45 @@ Distance Datastructures::trim_ways()
 {
     // Replace this comment with your implementation
     return NO_DISTANCE;
+}
+
+int Datastructures:: get_node_index(Coord pos)
+{
+    for (unsigned long i = 0; i < nodes_vector.size(); ++i) {
+        if (nodes_vector.at(i).position == pos) {
+            return i;
+        }
+    }
+    return false;
+}
+
+//makes nodes for our pathfinding graph, I hope.
+
+bool Datastructures::make_node(Coord pos, Coord next)
+{
+    bool neighbour_exists = false;
+    for (unsigned long i = 0; i < nodes_vector.size(); ++i) {
+        if (nodes_vector.at(i).position == next) {
+            neighbour_exists = true;
+        }
+        if (nodes_vector.at(i).position == pos) {
+            return false;
+        }
+    }
+    Way_node new_node;
+    new_node.position = pos;
+
+    Way_node neighbour;
+    Way_node *neighbourptr = nullptr;
+    if (neighbour_exists) {
+        neighbourptr = &neighbour;
+        neighbourptr->position = next;
+
+    }
+
+    new_node.nodeneighbours.push_back(neighbourptr);
+    nodes_vector.push_back(new_node);
+    return true;
 }
 
 std::vector<std::tuple<Coord, WayID, Distance>> Datastructures::route(Coord fromxy, Coord toxy)

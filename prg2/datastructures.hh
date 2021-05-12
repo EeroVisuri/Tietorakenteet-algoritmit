@@ -292,11 +292,13 @@ private:
     //
 
     struct Way_node {
-        int nodeid;
-        std::vector<Coord> nodeneighbours;
         Coord position;
-
+        std::vector<Way_node*> nodeneighbours;
     };
+
+    int get_node_index (Coord pos);
+
+    bool make_node (Coord pos, Coord next);
 
 
     std::vector<std::tuple<Coord, WayID, Distance>> route(Coord fromxy, Coord toxy);
