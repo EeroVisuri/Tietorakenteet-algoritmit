@@ -260,7 +260,8 @@ private:
     struct Way_node {
         Coord position;
         bool visited = false;
-        std::vector<Way_node*> nodeneighbours;
+        struct Way_node *next;
+        struct Way_node *prev;
     };
 
 

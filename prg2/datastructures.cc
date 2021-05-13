@@ -401,12 +401,42 @@ bool Datastructures::add_way(WayID id, std::vector<Coord> coords)
 
     //make the new way
     Way new_way(id, coords);
-    //add neighbouring node pointers
-    if (make_node(coords[0], coords.back())) {
-        new_way.startnode = &nodes_vector.back();
-        new_way.endnode = new_way.startnode->nodeneighbours.back();
-    }
+    //add nodes
+    make_node(coords.at(0), coords.at(1));
     ways_vector.push_back(new_way);
+    return true;
+}
+
+//makes nodes for our pathfinding graph, I hope.
+
+bool Datastructures::make_node(Coord pos, Coord next)
+{
+
+    bool next_exists = false;
+    int next_index;
+    //if node with given POS already exists return false
+
+
+    for (unsigned long i = 0; i < nodes_vector.size(); ++i) {
+        if (nodes_vector.at(i).position == next) {
+            next_exists = true;
+            next_index = i;
+        }
+        if (nodes_vector.at(i).position == pos) {
+            return false;
+        }
+    }
+    //else we add the new node
+    Way_node new_node;
+    new_node.position = pos;
+    new_node.prev = nullptr;
+    new_node.next = nullptr;
+    if (next_exists) {
+        new_node.next = &nodes_vector.at(next_index);
+        nodes_vector.at(next_index).prev = &new_node;
+
+    }
+    nodes_vector.push_back(new_node);
     return true;
 }
 
@@ -539,34 +569,7 @@ int Datastructures:: get_node_index(Coord pos)
     return false;
 }
 
-//makes nodes for our pathfinding graph, I hope.
 
-bool Datastructures::make_node(Coord pos, Coord next)
-{
-    bool neighbour_exists = false;
-    for (unsigned long i = 0; i < nodes_vector.size(); ++i) {
-        if (nodes_vector.at(i).position == next) {
-            neighbour_exists = true;
-        }
-        if (nodes_vector.at(i).position == pos) {
-            return false;
-        }
-    }
-    Way_node new_node;
-    new_node.position = pos;
-
-    Way_node neighbour;
-    Way_node *neighbourptr = nullptr;
-    if (neighbour_exists) {
-        neighbourptr = &neighbour;
-        neighbourptr->position = next;
-
-    }
-
-    new_node.nodeneighbours.push_back(neighbourptr);
-    nodes_vector.push_back(new_node);
-    return true;
-}
 
 std::string Datastructures::find_way(Coord pos)
 {
@@ -612,15 +615,17 @@ std::vector<std::tuple<Coord, WayID, Distance>> Datastructures::route(Coord from
 
     bool found = false;
     while (!found) {
-        //here crashery lol
-        if (!current.nodeneighbours.at(0)->visited) {
-            if (current.nodeneighbours.at(0)->position == toxy ||
-                    current.nodeneighbours.back()->position == toxy) {
+
+        //all below probably is shit fix pls.
+        if (current.next != nullptr) {
+            if (current.next->position == toxy) {
                 current.visited = true;
                 visited_coords.push_back(current.position);
                 visited.push_back(find_way(current.position));
                 distances.push_back(find_way_distance(current.position));
-                current = *current.nodeneighbours.back();
+                if (current.next != nullptr) {
+                    current = *current.next;
+                }
                 found = true;
             }
             else {
@@ -628,11 +633,13 @@ std::vector<std::tuple<Coord, WayID, Distance>> Datastructures::route(Coord from
                 visited_coords.push_back(current.position);
                 visited.push_back(find_way(current.position));
                 distances.push_back(find_way_distance(current.position));
-                current = *current.nodeneighbours.back();
+                if (current.next != nullptr) {
+                    current = *current.next;
+                }
             }
         }
         else {
-            //uh what then
+            //do what
         }
     }
     Distance total = 0;
