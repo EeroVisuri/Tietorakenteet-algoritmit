@@ -399,8 +399,9 @@ bool Datastructures::add_way(WayID id, std::vector<Coord> coords)
         }
     }
 
+    //make the new way
     Way new_way(id, coords);
-
+    //add neighbouring node pointers
     if (make_node(coords[0], coords.back())) {
         new_way.startnode = &nodes_vector.back();
         new_way.endnode = new_way.startnode->nodeneighbours.back();
@@ -470,6 +471,10 @@ std::vector<std::tuple<Coord, WayID, Distance> > Datastructures::route_any(Coord
 {
     // Replace this comment with your implementation
 
+    std::vector<std::tuple<Coord, WayID, Distance>> tuple = route(fromxy, toxy);
+
+    return tuple;
+
     //check if either start or end coordinates aren't a crossroad
     //if so we return this {{NO_COORD, NO_WAY, NO_DISTANCE}}
 
@@ -507,6 +512,21 @@ Distance Datastructures::trim_ways()
 {
     // Replace this comment with your implementation
     return NO_DISTANCE;
+}
+
+std::pair<WayID, int> Datastructures::get_shortest_way(std::vector<Datastructures::Way> ways)
+{
+    int shortest = 999999;
+    WayID shortest_id = 0;
+    for (unsigned long i = 0; i < ways.size(); ++i) {
+        if (ways.at(i).waylength < shortest) {
+            shortest = ways.at(i).waylength;
+            shortest_id = ways.at(i).id;
+        }
+    }
+    std::pair<WayID, int> pair;
+    pair = std::make_pair(shortest_id, shortest);
+    return pair;
 }
 
 int Datastructures:: get_node_index(Coord pos)
@@ -548,29 +568,88 @@ bool Datastructures::make_node(Coord pos, Coord next)
     return true;
 }
 
+std::string Datastructures::find_way(Coord pos)
+{
+    for (unsigned long i = 0; i < ways_vector.size(); ++i) {
+        if (ways_vector.at(i).start == pos) {
+            return ways_vector.at(i).id;
+        }
+    }
+    return NO_WAY;
+}
+
+int Datastructures::find_way_distance(Coord pos)
+{
+    for (unsigned long i = 0; i < ways_vector.size(); ++i) {
+        if (ways_vector.at(i).start == pos) {
+            return ways_vector.at(i).waylength;
+        }
+    }
+    return 0;
+}
+
 std::vector<std::tuple<Coord, WayID, Distance>> Datastructures::route(Coord fromxy, Coord toxy)
 {
     std::vector<Distance> distances;
+    std::vector<Distance> distances_to_be_returned;
+    std::vector<Way_node> to_be_visited = nodes_vector;
     std::vector<WayID> visited;
-    std::vector<Way> to_be_visited = ways_vector;
+    std::vector<Coord> visited_coords;
 
-    Way start;
-    Way end;
+    Way_node current;
+    Way_node end;
 
-    for (unsigned long i = 0; i < ways_vector.size(); ++i) {
-        if (ways_vector.at(i).start == fromxy) {
-            start = ways_vector.at(i);
+    for (unsigned long i = 0; i < nodes_vector.size(); ++i) {
+        if (nodes_vector.at(i).position == fromxy) {
+            current = nodes_vector.at(i);
         }
-        if (ways_vector.at(i).end_coord == toxy) {
-            end = ways_vector.at(i);
+        if (nodes_vector.at(i).position == toxy) {
+            end = nodes_vector.at(i);
         }
     }
 
-    while (to_be_visited.size() != 0) {
+    //todo check if either start or end coord has no ways, return  {NO_COORD, NO_WAY, NO_DISTANCE}
 
+    bool found = false;
+    while (!found) {
+        //here crashery lol
+        if (!current.nodeneighbours.at(0)->visited) {
+            if (current.nodeneighbours.at(0)->position == toxy ||
+                    current.nodeneighbours.back()->position == toxy) {
+                current.visited = true;
+                visited_coords.push_back(current.position);
+                visited.push_back(find_way(current.position));
+                distances.push_back(find_way_distance(current.position));
+                current = *current.nodeneighbours.back();
+                found = true;
+            }
+            else {
+                current.visited = true;
+                visited_coords.push_back(current.position);
+                visited.push_back(find_way(current.position));
+                distances.push_back(find_way_distance(current.position));
+                current = *current.nodeneighbours.back();
+            }
+        }
+        else {
+            //uh what then
+        }
+    }
+    Distance total = 0;
+    for (std::vector<Distance>::iterator it = distances.begin(); it != distances.end(); ++it) {
+        total += *it;
     }
 
+    for (unsigned long i = 1; i < distances.size(); ++i) {
+        distances_to_be_returned.push_back(distances.at(i)+distances.at(i-1));
+    }
 
+    std::vector<std::tuple<Coord, WayID, Distance>> tuples;
+    for (unsigned long i = 0; i < visited.size(); ++i) {
+        tuples.push_back(std::make_tuple(visited_coords.at(i), visited.at(i), distances_to_be_returned.at(i)));
+
+    }
+    return tuples;
 }
 
 int Datastructures::way_length(Coord fromxy, Coord toxy)

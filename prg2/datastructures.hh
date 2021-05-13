@@ -259,6 +259,7 @@ private:
 
     struct Way_node {
         Coord position;
+        bool visited = false;
         std::vector<Way_node*> nodeneighbours;
     };
 
@@ -300,12 +301,15 @@ private:
     //
     //
 
-
+    std::pair<WayID, int>get_shortest_way(std::vector<Way> ways);
 
     int get_node_index (Coord pos);
 
     bool make_node (Coord pos, Coord next);
 
+    std::string find_way (Coord pos);
+
+    int find_way_distance (Coord pos);
 
     std::vector<std::tuple<Coord, WayID, Distance>> route(Coord fromxy, Coord toxy);
 
