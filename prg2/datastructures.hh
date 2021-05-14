@@ -259,14 +259,17 @@ private:
 
     struct Way_node {
         Coord position;
+        int val;
         bool visited = false;
         struct Way_node *next;
         struct Way_node *prev;
+
     };
 
 
     //struct for edges in the graph
     struct Way {
+    public:
         WayID id;
         std::vector<Coord>way_coords_vect;
         Distance waylength;
@@ -274,6 +277,11 @@ private:
         Coord end_coord;
         Way_node *startnode;
         Way_node *endnode;
+        int start_ver;
+        int end_ver;
+        struct Way *next;
+        struct Way *prev;
+
 
 
         Way() {
@@ -302,13 +310,52 @@ private:
     //
     //
 
+    class graph {
+        Way_node* get_adjlist_node(int value, Distance weight, Way_node* head) {
+            Way_node* new_node = new Way_node;
+            new_node->val = value;
+            new_node->next = head;
+            new_node->val = weight;
+            return new_node;
+        }
+        int nodes; //how many nodes in graph.
+
+    public:
+        Way_node **head; //adjacency list as array of ptrs
+        //allocate new node
+        graph(Way ways[], int n) {
+            head = new Way_node*[n]();
+            this->nodes = n;
+            //construct directed graph, add edges
+            for (int i = 0; i < n; ++i) {
+                int start_ver = ways[i].start_ver;
+                int end_ver = ways[i].end_ver;
+                Distance weight = ways[i].waylength;
+                Way_node *new_node = get_adjlist_node(end_ver, weight, head[start_ver]);
+                //head pointer to new_node
+                head[start_ver] = new_node;
+            }
+        }
+        //destructor
+        ~graph(){
+            for (int i = 0; i < nodes; ++i) {
+                delete [] head[i];
+                delete [] head;
+            }
+        }
+    };
+
+
+
+    void make_graph(int edges, Datastructures::Way edgeslist[]);
+
     std::pair<WayID, int>get_shortest_way(std::vector<Way> ways);
 
     int get_node_index (Coord pos);
 
     bool make_node (Coord pos, Coord next);
 
-    std::string find_way (Coord pos);
+    static std::string find_way (Coord pos, std::vector<Way> ways_vector);
 
     int find_way_distance (Coord pos);
 

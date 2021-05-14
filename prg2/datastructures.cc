@@ -3,7 +3,7 @@
 #include "datastructures.hh"
 
 #include <random>
-
+#include <queue>
 #include <cmath>
 
 std::minstd_rand rand_engine; // Reasonably quick pseudo-random generator
@@ -544,6 +544,7 @@ Distance Datastructures::trim_ways()
     return NO_DISTANCE;
 }
 
+
 std::pair<WayID, int> Datastructures::get_shortest_way(std::vector<Datastructures::Way> ways)
 {
     int shortest = 999999;
@@ -571,7 +572,7 @@ int Datastructures:: get_node_index(Coord pos)
 
 
 
-std::string Datastructures::find_way(Coord pos)
+std::string Datastructures::find_way(Coord pos, std::vector<Way> ways_vector)
 {
     for (unsigned long i = 0; i < ways_vector.size(); ++i) {
         if (ways_vector.at(i).start == pos) {
@@ -599,65 +600,51 @@ std::vector<std::tuple<Coord, WayID, Distance>> Datastructures::route(Coord from
     std::vector<WayID> visited;
     std::vector<Coord> visited_coords;
 
-    Way_node current;
-    Way_node end;
+    Way current;
+    Way end;
 
     for (unsigned long i = 0; i < nodes_vector.size(); ++i) {
         if (nodes_vector.at(i).position == fromxy) {
-            current = nodes_vector.at(i);
+            current = ways_vector.at(i);
         }
         if (nodes_vector.at(i).position == toxy) {
-            end = nodes_vector.at(i);
+            end = ways_vector.at(i);
         }
     }
 
-    //todo check if either start or end coord has no ways, return  {NO_COORD, NO_WAY, NO_DISTANCE}
+    //check if either start or end coord has no ways, return  {NO_COORD, NO_WAY, NO_DISTANCE}
+
+    if (current.endnode == nullptr || end.startnode == nullptr) {
+        std::vector<std::tuple<Coord, WayID, Distance>> fail;
+        fail.push_back(std::make_tuple(NO_COORD, NO_WAY, NO_DISTANCE));
+        return fail;
+    }
 
     bool found = false;
-    while (!found) {
+    std::queue<Way> q;
+    std::vector<Coord> discovered;
+    discovered.push_back(source);
 
-        //all below probably is shit fix pls.
-        if (current.next != nullptr) {
-            if (current.next->position == toxy) {
-                current.visited = true;
-                visited_coords.push_back(current.position);
-                visited.push_back(find_way(current.position));
-                distances.push_back(find_way_distance(current.position));
-                if (current.next != nullptr) {
-                    current = *current.next;
-                }
-                found = true;
-            }
-            else {
-                current.visited = true;
-                visited_coords.push_back(current.position);
-                visited.push_back(find_way(current.position));
-                distances.push_back(find_way_distance(current.position));
-                if (current.next != nullptr) {
-                    current = *current.next;
-                }
-            }
+    q.push(current);
+
+    while (!q.empty() || found == false) {
+        Way v = q.front();
+        q.pop();
+        if (v.start == toxy) {
+            found == true;
         }
-        else {
-            //do what
+        for (unsigned i = 0; i < ways_vector.size(); ++i) {
+            discovered.push_back(ways_vector.at(i).start);
+            //push ways by next, go through, take up which ways gone through until returns true from v.start above
+
         }
     }
-    Distance total = 0;
-    for (std::vector<Distance>::iterator it = distances.begin(); it != distances.end(); ++it) {
-        total += *it;
-    }
 
-    for (unsigned long i = 1; i < distances.size(); ++i) {
-        distances_to_be_returned.push_back(distances.at(i)+distances.at(i-1));
-    }
 
-    std::vector<std::tuple<Coord, WayID, Distance>> tuples;
-    for (unsigned long i = 0; i < visited.size(); ++i) {
-        tuples.push_back(std::make_tuple(visited_coords.at(i), visited.at(i), distances_to_be_returned.at(i)));
 
-    }
-    return tuples;
 }
+
+
 
 int Datastructures::way_length(Coord fromxy, Coord toxy)
 {
