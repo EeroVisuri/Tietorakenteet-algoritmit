@@ -289,7 +289,7 @@ private:
         }
 
         //parametized constructor, calculates its own waylength and start and end coords are saved.
-        Way(WayID id1, std::vector<Coord>way_coords_vect1) {
+        Way(WayID id1, std::vector<Coord>way_coords_vect1, std::vector<Way> ways_vector) {
             id = id1;
             waylength = 0;
             way_coords_vect = way_coords_vect1;
@@ -305,7 +305,20 @@ private:
             }
             start = way_coords_vect[0];
             end_coord = way_coords_vect.back();
+
+            //save pointers for next and previous ways too
+            for (unsigned long i = 0; i < ways_vector.size(); ++i) {
+                if (ways_vector.at(i).start == this->end_coord) {
+                    this->next = &ways_vector.at(i);
+                }
+                if (ways_vector.at(i).end_coord == this->start) {
+                    this->prev =&ways_vector.at(i);
+                }
+            }
+
         }
+
+
     };
     //
     //

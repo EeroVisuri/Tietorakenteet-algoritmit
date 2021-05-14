@@ -400,7 +400,7 @@ bool Datastructures::add_way(WayID id, std::vector<Coord> coords)
     }
 
     //make the new way
-    Way new_way(id, coords);
+    Way new_way(id, coords, ways_vector);
     //add nodes
     make_node(coords.at(0), coords.at(1));
     ways_vector.push_back(new_way);
@@ -454,12 +454,12 @@ std::vector<std::pair<WayID, Coord>> Datastructures::ways_from(Coord xy)
                 //if xy is at the end of way_coords_vect, we use the starting coords instead.
                 if (j == ways_vector.at(i).way_coords_vect.size()-1) {
                     ways_from_vect.push_back(std::make_pair
-                        (ways_vector.at(i).id, ways_vector.at(i).way_coords_vect[0]));
+                                             (ways_vector.at(i).id, ways_vector.at(i).way_coords_vect[0]));
                 }
                 else {
                     //otherwise we can use the last coords.
                     ways_from_vect.push_back(std::make_pair
-                        (ways_vector.at(i).id, ways_vector.at(i).way_coords_vect.back()));
+                                             (ways_vector.at(i).id, ways_vector.at(i).way_coords_vect.back()));
                 }
             }
         }
@@ -504,13 +504,6 @@ std::vector<std::tuple<Coord, WayID, Distance> > Datastructures::route_any(Coord
     std::vector<std::tuple<Coord, WayID, Distance>> tuple = route(fromxy, toxy);
 
     return tuple;
-
-    //check if either start or end coordinates aren't a crossroad
-    //if so we return this {{NO_COORD, NO_WAY, NO_DISTANCE}}
-
-    return {{NO_COORD, NO_WAY, NO_DISTANCE}};
-
-
 
 }
 
@@ -596,20 +589,21 @@ std::vector<std::tuple<Coord, WayID, Distance>> Datastructures::route(Coord from
 {
     std::vector<Distance> distances;
     std::vector<Distance> distances_to_be_returned;
-    std::vector<Way_node> to_be_visited = nodes_vector;
+    std::vector<Way> to_be_visited = ways_vector;
     std::vector<WayID> visited;
     std::vector<Coord> visited_coords;
 
     Way current;
     Way end;
 
-    for (unsigned long i = 0; i < nodes_vector.size(); ++i) {
-        if (nodes_vector.at(i).position == fromxy) {
+    for (unsigned long i = 0; i < to_be_visited.size(); ++i) {
+        if (to_be_visited.at(i).end_coord == fromxy) {
             current = ways_vector.at(i);
         }
-        if (nodes_vector.at(i).position == toxy) {
-            end = ways_vector.at(i);
+        if (to_be_visited.at(i).end_coord == toxy) {
+            end = to_be_visited.at(i);
         }
+
     }
 
     //check if either start or end coord has no ways, return  {NO_COORD, NO_WAY, NO_DISTANCE}
@@ -622,8 +616,8 @@ std::vector<std::tuple<Coord, WayID, Distance>> Datastructures::route(Coord from
 
     bool found = false;
     std::queue<Way> q;
-    std::vector<Coord> discovered;
-    discovered.push_back(source);
+    std::vector<Way> discovered;
+    discovered.push_back(current);
 
     q.push(current);
 
@@ -631,17 +625,31 @@ std::vector<std::tuple<Coord, WayID, Distance>> Datastructures::route(Coord from
         Way v = q.front();
         q.pop();
         if (v.start == toxy) {
-            found == true;
+            found = true;
         }
-        for (unsigned i = 0; i < ways_vector.size(); ++i) {
-            discovered.push_back(ways_vector.at(i).start);
-            //push ways by next, go through, take up which ways gone through until returns true from v.start above
-
+        while (current.next != nullptr) {
+            for (unsigned i = 0; i < to_be_visited.size(); ++i) {
+                if (to_be_visited.at(i).start == current.start) {
+                    if (current.next != nullptr) {
+                        current = *current.next;
+                        discovered.push_back(current);
+                        q.push(current);
+                    }
+                }
+            }
         }
     }
-
-
-
+    Distance total = 0;
+    for(std::vector<Distance>::iterator it = distances.begin(); it != distances.end(); ++it) {
+        total += *it;
+    }
+    std::vector<std::tuple<Coord, WayID, Distance>> tuples;
+    for (unsigned long i = 0; i < discovered.size()-1; ++i) {
+        tuples.push_back(std::make_tuple(discovered.at(i).start,
+                                         discovered.at(i).id, discovered.at(i).waylength));
+    }
+    tuples.push_back(std::make_tuple(discovered.back().start, NO_WAY, total));
+    return tuples;
 }
 
 
