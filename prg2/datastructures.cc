@@ -400,10 +400,23 @@ bool Datastructures::add_way(WayID id, std::vector<Coord> coords)
     }
 
     //make the new way
-    Way new_way(id, coords, ways_vector);
+    Way new_way(id, coords);
     //add nodes
     make_node(coords.at(0), coords.at(1));
+    if (ways_vector.size() == 1) {
+        new_way.prev = nullptr;
+    }
+    else if (ways_vector.size() > 1) {
+        new_way.prev = &ways_vector.back();
+    }
+    new_way.next = nullptr;
     ways_vector.push_back(new_way);
+    for (unsigned long i = 0; i < ways_vector.size()-1; ++i) {
+        ways_vector.at(i).next = &ways_vector.at(i)+1;
+    }
+
+
+
     return true;
 }
 
@@ -434,7 +447,6 @@ bool Datastructures::make_node(Coord pos, Coord next)
     if (next_exists) {
         new_node.next = &nodes_vector.at(next_index);
         nodes_vector.at(next_index).prev = &new_node;
-
     }
     nodes_vector.push_back(new_node);
     return true;
@@ -617,38 +629,45 @@ std::vector<std::tuple<Coord, WayID, Distance>> Datastructures::route(Coord from
     bool found = false;
     std::queue<Way> q;
     std::vector<Way> discovered;
+    Coord last;
     discovered.push_back(current);
 
     q.push(current);
 
-    while (!q.empty() || found == false) {
+    while (found == false) {
         Way v = q.front();
         q.pop();
         if (v.start == toxy) {
             found = true;
         }
-        while (current.next != nullptr) {
-            for (unsigned i = 0; i < to_be_visited.size(); ++i) {
-                if (to_be_visited.at(i).start == current.start) {
-                    if (current.next != nullptr) {
-                        current = *current.next;
-                        discovered.push_back(current);
-                        q.push(current);
-                    }
+        while (current.next != nullptr || found == false) {
+            if (current.next != nullptr) {
+                current = *current.next;
+                if (current.end_coord == toxy) {
+                    last = current.end_coord;
+                    found = true;
                 }
+                discovered.push_back(current);
+                distances.push_back(current.waylength);
+                q.push(current);
+
             }
         }
     }
+
     Distance total = 0;
+
     for(std::vector<Distance>::iterator it = distances.begin(); it != distances.end(); ++it) {
         total += *it;
     }
     std::vector<std::tuple<Coord, WayID, Distance>> tuples;
+
     for (unsigned long i = 0; i < discovered.size()-1; ++i) {
         tuples.push_back(std::make_tuple(discovered.at(i).start,
                                          discovered.at(i).id, discovered.at(i).waylength));
     }
-    tuples.push_back(std::make_tuple(discovered.back().start, NO_WAY, total));
+
+    tuples.push_back(std::make_tuple(last, NO_WAY, total));
     return tuples;
 }
 
